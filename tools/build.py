@@ -76,6 +76,8 @@ def main():
     groups = json.load(open(os.path.join(TOOLS, 'groups.json')))
     os.makedirs(os.path.join(site, 'img', 't'), exist_ok=True)
     books, missing, used = [], [], set()
+    skp = os.path.join(TOOLS, 'skip.json')
+    skip = set(json.load(open(skp))) if os.path.exists(skp) else set()
     for f in sorted(os.listdir(a.books)):
         if not f.endswith('.json'):
             continue
@@ -92,6 +94,8 @@ def main():
             if INV.search(p.get('label') or ''):
                 continue
             pid = p['id']
+            if pid in skip:
+                continue
             full, th = os.path.join(site, 'img', pid + '.bin'), os.path.join(site, 'img', 't', pid + '.bin')
             if not (os.path.exists(full) and os.path.exists(th)):
                 src = next((os.path.join(dd, pid + '.jpg') for dd in a.photos if os.path.exists(os.path.join(dd, pid + '.jpg'))), None)
@@ -100,6 +104,7 @@ def main():
                 try:
                     Image.open(src).verify()
                 except Exception:
+                    skip.add(pid); json.dump(sorted(skip), open(skp, 'w'))
                     continue  # not a photo (e.g. a PDF document): never published
                 open(full, 'wb').write(seal(ck, jpeg(src, 1600, 82)))
                 open(th, 'wb').write(seal(ck, jpeg(src, 360, 78)))
