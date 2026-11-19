@@ -120,6 +120,16 @@ dd.t{font-family:var(--f-display);font-style:italic;font-size:1.08rem}
 .gate .err{color:#a33;font-size:.9rem;min-height:1.2em}
 .lockbtn{border:0;background:none;color:var(--muted);font:inherit;font-size:.84rem;text-decoration:underline;cursor:pointer;padding:0;margin-left:8px}
 img[data-enc]:not([src]){visibility:hidden}
+.fbar{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;margin:0 0 12px}
+.fbar summary{cursor:pointer;font-weight:600;font-size:.92rem;color:var(--accent);list-style:none;display:flex;align-items:center;gap:8px;min-height:32px}
+.fbar summary::-webkit-details-marker{display:none}
+.fcount{font-size:.75rem;color:var(--gilt);background:var(--gilt-soft);border-radius:99px;padding:1px 8px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px 12px;margin-top:10px}
+.fgrid label{display:grid;gap:3px;font-size:.8rem;font-weight:600;color:var(--muted)}
+.fgrid input,.fgrid select{font:inherit;font-size:.9rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:7px;padding:6px 9px;min-height:38px;width:100%}
+.fgrid .two{display:flex;gap:6px}
+.fact{display:flex;justify-content:flex-end;margin-top:8px}
+.fact button{border:0;background:none;color:var(--muted);font:inherit;font-weight:600;font-size:.88rem;min-height:36px;cursor:pointer}
 </style>
 
 </head><body>
@@ -163,6 +173,19 @@ img[data-enc]:not([src]){visibility:hidden}
       </label>
       <div class="vsw" role="group" aria-label="Display as"><button type="button" data-v="list" aria-pressed="true">List</button><button type="button" data-v="tiles" aria-pressed="false">Tiles</button></div>
     </div>
+    <details class="fbar" id="c-fbar"><summary>Filter <span class="fcount" id="c-fcount" hidden></span></summary>
+      <div class="fgrid">
+        <label>Author<input id="cf-author" placeholder="Any author"></label>
+        <label>Category<select id="cf-category"></select></label>
+        <label>Century<select id="cf-century"><option value="">Any century</option><option>15th century</option><option>16th century</option><option>17th century</option><option>18th century</option><option>19th century</option><option>20th century</option><option>21st century</option></select></label>
+        <label>Language<select id="cf-language"></select></label>
+        <label>Edition<select id="cf-edition"></select></label>
+        <label>Condition, at least<select id="cf-cond"><option value="">Any</option><option>Fine</option><option>Near Fine</option><option>Very Good</option><option>Good</option><option>Fair</option></select></label>
+        <label>Signed or inscribed<select id="cf-signed"><option value="">Any</option><option value="yes">Signed or inscribed</option><option value="no">Not signed</option></select></label>
+        <label>Year<span class="two"><input id="cf-y1" inputmode="numeric" placeholder="From"><input id="cf-y2" inputmode="numeric" placeholder="To"></span></label>
+      </div>
+      <div class="fact"><button type="button" id="cf-clear">Clear filters</button></div>
+    </details>
     <div id="list" class="list"></div>
   </main>
 
@@ -218,7 +241,7 @@ function renderList(){
   const n=BOOKS.length;
   $("#summary").replaceChildren(el("div",null,el("span",{class:"big",text:String(n)}),el("span",{class:"lbl",text:"books"})),el("div",null,el("span",{class:"big",text:String(BOOKS.filter(isFirst).length)}),el("span",{class:"lbl",text:"first editions"})));
   const fold=x=>String(x??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’‘`´]/g,"'").toLowerCase(), q=fold($("#q").value.trim()), by=$("#sort").value, g=$("#group").value, list=$("#list"); list.replaceChildren();
-  let rows=q?BOOKS.filter(b=>Object.values(b).some(v=>typeof v==="string"&&fold(v).includes(q))):[...BOOKS];
+  let rows=(q?BOOKS.filter(b=>Object.values(b).some(v=>typeof v==="string"&&fold(v).includes(q))):[...BOOKS]).filter(passCF);
   if(!rows.length){list.append(el("p",{class:"empty",text:"No books match that search."}));return;}
   rows.sort((a,b)=>cmp(a,b,by));
   if(!g){rows.forEach(b=>list.append(row(b)));return;}
@@ -246,9 +269,36 @@ function renderBook(b){
     box.append(el("section",{class:"sect"},el("h3",{text:name}),dl));
   }
 }
+const CATEGORIES=["Fiction","Poetry and drama","Philosophy","Political thought","Economics","History","Law","Religion","Science and medicine","Literary criticism","Essays and letters","Other"];
+function categoryOf(b){ if(b.category&&CATEGORIES.includes(b.category)) return b.category; const t=((b.genre||"")+" "+(b.subject||"")).toLowerCase();
+  const R=[["Literary criticism",/critic/],["Fiction",/novel|novella|fiction|short stor|récit|tale/],["Poetry and drama",/poe|verse|drama|play\b|theat/],["Religion",/bible|liturg|theolog|relig|scripture/],["Law",/legal|law\b|jurispr/],["Economics",/econom/],["Political thought",/politic|pamphlet|polemic|government|democra/],["Philosophy",/philosoph/],["History",/histor|reportage/],["Science and medicine",/scien|medic|natural/],["Essays and letters",/essay|letter|journalism|lecture|proceedings/]];
+  for(const [c,re] of R) if(re.test(t)) return c; return t.trim()?"Other":""; }
+function centuryOf(y){ if(y==null) return ""; const c=Math.floor((y-1)/100)+1; return c+(c===21?"st":"th")+" century"; }
+const GR={"Fine":6,"Near Fine":5,"Very Good":4,"Good":3,"Fair":2,"Poor":1};
+const numv=v=>{const n=parseFloat(String(v||"").replace(/[$,\s]/g,""));return isFinite(n)?n:null;};
+const fo=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const CF={},cfIds=["author","category","century","language","edition","cond","signed","y1","y2"];
+function setOpts(sel,vals,label){const cur=sel.value;sel.replaceChildren(el("option",{value:"",text:label}),...vals.map(v=>el("option",{value:v,text:v})));sel.value=vals.includes(cur)?cur:"";}
+function fillFilters(){const uq=k=>[...new Set(BOOKS.map(b=>String(b[k]||"").trim()).filter(Boolean))].sort();
+  setOpts($("#cf-category"),CATEGORIES.filter(c=>BOOKS.some(b=>categoryOf(b)===c)),"Any category");setOpts($("#cf-language"),uq("language"),"Any language");setOpts($("#cf-edition"),uq("editionStatus"),"Any edition");
+}
+function passCF(b){
+  if(CF.author&&!fo(b.author).includes(fo(CF.author)))return false;
+  if(CF.category&&categoryOf(b)!==CF.category)return false;
+  if(CF.century&&centuryOf(yearOf(b))!==CF.century)return false;
+  if(CF.language&&String(b.language||"").trim()!==CF.language)return false;
+  if(CF.edition&&String(b.editionStatus||"").trim()!==CF.edition)return false;
+  if(CF.cond&&(GR[b.conditionBook]||0)<GR[CF.cond])return false;
+  const sg=/Signed|Inscribed|Association/.test(b.signed||"");if(CF.signed==="yes"&&!sg)return false;if(CF.signed==="no"&&sg)return false;
+  const y=yearOf(b);if(numv(CF.y1)!=null&&(y==null||y<numv(CF.y1)))return false;if(numv(CF.y2)!=null&&(y==null||y>numv(CF.y2)))return false;
+  return true;}
+function readCF(){for(const k of cfIds)CF[k]=$("#cf-"+k).value.trim();const n=cfIds.filter(k=>CF[k]).length;$("#c-fcount").textContent=n?n+" active":"";$("#c-fcount").hidden=!n;renderList();}
+cfIds.forEach(k=>{const e=$("#cf-"+k);e.addEventListener(e.tagName==="SELECT"?"change":"input",readCF);});
+$("#cf-clear").onclick=()=>{cfIds.forEach(k=>$("#cf-"+k).value="");readCF();};
 function route(){
   const m=location.hash.match(/^#book-([a-z0-9]+)$/i); const b=m&&BOOKS.find(x=>x.id===m[1]);
   $("#v-list").hidden=!!b; $("#v-book").hidden=!b;
+  try{fillFilters();}catch(e){}
   if(b){renderBook(b);window.scrollTo(0,0);}else renderList();
 }
 $("#back").onclick=()=>{location.hash="";};
