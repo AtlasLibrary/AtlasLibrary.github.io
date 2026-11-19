@@ -61,6 +61,22 @@ h1.brand .logo{width:1.9em;height:1.9em;flex:none;border-radius:50%;box-shadow:0
 .imp b{color:var(--ink);font-variant-numeric:tabular-nums}
 @media (max-width:560px){.row{grid-template-columns:52px minmax(0,1fr)}.twrap{width:52px;height:68px}.fe{font-size:.5rem;letter-spacing:.03em}}
 .empty{color:var(--muted);padding:20px 0}
+.vsw{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden;flex:none;align-self:flex-end}
+.vsw button{font:inherit;font-size:.85rem;font-weight:600;border:0;background:var(--surface);color:var(--muted);padding:8px 16px;min-height:42px;cursor:pointer}
+.vsw button+button{border-left:1px solid var(--rule)}
+.vsw button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+.list.tiles{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.list.tiles>.ghead,.list.tiles>.empty,.list.tiles>p,.list.tiles>div:not(.ghead):not(.row){grid-column:1/-1}
+.list.tiles .row{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:8px 8px 10px;height:100%}
+.list.tiles .twrap{width:100%;height:auto;aspect-ratio:3/4}
+.list.tiles .twrap .thumb{width:100%;height:100%}
+.list.tiles .twrap .fe,.list.tiles .fe{font-size:.62rem;letter-spacing:.05em}
+.list.tiles .row .who{font-size:.78rem}
+.list.tiles .row .ttl{font-size:1rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.list.tiles .row .imp{font-size:.8rem}
+.list.tiles .row .right{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start}
+.list.tiles .row .chips{justify-content:flex-start}
+
 .back{border:0;background:none;color:var(--accent);font-weight:600;padding:12px 0;min-height:44px}
 .bhead{padding-bottom:14px;border-bottom:1px solid var(--rule)}
 .bhead .who{font-size:.95rem}
@@ -137,6 +153,7 @@ img[data-enc]:not([src]){visibility:hidden}
           <option value="author" selected>Author</option>
         </select>
       </label>
+      <div class="vsw" role="group" aria-label="Display as"><button type="button" data-v="list" aria-pressed="true">List</button><button type="button" data-v="tiles" aria-pressed="false">Tiles</button></div>
     </div>
     <div id="list" class="list"></div>
   </main>
@@ -188,6 +205,7 @@ function gsort(a,b,g){if(GORDER[g])return GORDER[g].indexOf(a)-GORDER[g].indexOf
 function thumb(b){const p=(b.photos||[])[0];return el("div",{class:"twrap"},p?el("img",{"data-enc":p.thumb,alt:""}):(b.author||titleOf(b)).trim().charAt(0).toUpperCase(),isFirst(b)?el("span",{class:"fe",text:"First edition"}):null);}
 function impLine(b){const y=yearOf(b);return el("div",{class:"imp"},y!=null?el("b",{text:String(y)}):null,[b.editionStatus||"Edition not recorded",[b.place,b.publisher].filter(Boolean).join(": ")].filter(Boolean).map((x,i)=>(i||y!=null?" · ":"")+x).join(""));}
 function row(b){return el("button",{class:"row",type:"button",onclick:()=>{location.hash="book-"+b.id;}},thumb(b),el("div",{style:"min-width:0"},el("div",{class:"who",text:b.author||"Author not recorded"}),el("div",{class:"ttl",text:titleOf(b)}),b.listNote?el("div",{class:"lnote",text:"("+b.listNote.replace(/^\(|\)$/g,"")+")"}):null,impLine(b)));}
+var VIEW="list";
 function renderList(){
   const n=BOOKS.length;
   $("#summary").replaceChildren(el("div",null,el("span",{class:"big",text:String(n)}),el("span",{class:"lbl",text:"books"})),el("div",null,el("span",{class:"big",text:String(BOOKS.filter(isFirst).length)}),el("span",{class:"lbl",text:"first editions"})));
@@ -226,8 +244,12 @@ $("#back").onclick=()=>{location.hash="";};
 ["input","change"].forEach(ev=>{$("#q").addEventListener(ev,renderList);});
 (function(){let v={};try{v=JSON.parse(localStorage.getItem("atlasView")||"{}")}catch(e){}
   $("#sort").value=v.sort&&[...$("#sort").options].some(o=>o.value===v.sort)?v.sort:$("#sort").options[0].value;
-  $("#group").value=typeof v.group==="string"&&[...$("#group").options].some(o=>o.value===v.group)?v.group:"author";})();
-function saveView(){try{localStorage.setItem("atlasView",JSON.stringify({sort:$("#sort").value,group:$("#group").value}))}catch(e){}}
+  $("#group").value=typeof v.group==="string"&&[...$("#group").options].some(o=>o.value===v.group)?v.group:"author";
+  VIEW=v.view==="tiles"?"tiles":"list";})();
+function saveView(){try{localStorage.setItem("atlasView",JSON.stringify({sort:$("#sort").value,group:$("#group").value,view:VIEW}))}catch(e){}}
+function applyView(){$("#list").classList.toggle("tiles",VIEW==="tiles");document.querySelectorAll(".vsw button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.v===VIEW)));}
+document.querySelectorAll(".vsw button").forEach(x=>x.addEventListener("click",()=>{VIEW=x.dataset.v;saveView();applyView();}));
+applyView();
 $("#sort").addEventListener("change",()=>{saveView();renderList();});$("#group").addEventListener("change",()=>{saveView();renderList();});
 window.addEventListener("hashchange",route);
 function start(){$("#gate").hidden=true;$("#app").hidden=false;
