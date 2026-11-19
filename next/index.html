@@ -209,11 +209,15 @@ img[data-enc]:not([src]){visibility:hidden}
       <label for="group">Group by
         <select id="group" class="ctl" autocomplete="off">
           <option value="">No grouping</option>
-          <option value="edition">First editions</option>
+          <optgroup label="The book">
+          <option value="author" selected>Author</option>
           <option value="century">Century of publication</option>
           <option value="language">Language</option>
+          <option value="edition">First editions</option>
+          </optgroup>
+          <optgroup label="Places">
           <option value="authorCountry">Author's country</option>
-          <option value="author" selected>Author</option>
+          </optgroup>
         </select>
       </label>
       <div class="vsw" role="group" aria-label="Display as"><button type="button" data-v="list" aria-pressed="true">List</button><button type="button" data-v="tiles" aria-pressed="false">Tiles</button></div>
