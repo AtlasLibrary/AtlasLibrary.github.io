@@ -59,7 +59,7 @@ def jpeg(src, maxside, q):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--books'); ap.add_argument('--photos', action='append', default=[]); ap.add_argument('--site', required=True)
-    ap.add_argument('--change-password', action='store_true')
+    ap.add_argument('--change-password', action='store_true'); ap.add_argument('--extra')
     a = ap.parse_args()
     pw = os.environ.get('ATLAS_PW')
     if not pw:
@@ -117,7 +117,22 @@ def main():
             for fn in os.listdir(os.path.join(site, sub)):
                 if fn.endswith('.bin') and fn[:-4] not in used:
                     os.remove(os.path.join(site, sub, fn))
-    sig = hashlib.sha256(json.dumps(books, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    extra = {}
+    if a.extra:
+        for c, keep in (('wants', ('author','title','edition','language','category','century','format','mustHave','region','points','reject','maxPrice','minCondition','notes','active','lastSearched','frequency')),
+                        ('matches', ('wantId','title','seller','location','price','priceText','condition','url','verdict','evidence','foundAt','dismissed')),
+                        ('auctions', ('kind','bookId','wantId','title','house','sale','saleDate','lot','estimate','url','note','foundAt','dismissed'))):
+            d = os.path.join(a.extra, c); rows = []
+            if os.path.isdir(d):
+                for fn in sorted(os.listdir(d)):
+                    if fn.endswith('.json'):
+                        r = json.load(open(os.path.join(d, fn))); r = r.get('data', r)
+                        rows.append({'id': fn[:-5], **{k: r[k] for k in keep if k in r}})
+            extra[c] = rows
+        mp = os.path.join(a.extra, 'meta', 'worker.json')
+        if os.path.exists(mp):
+            m = json.load(open(mp)); m = m.get('data', m); extra['meta'] = {k: m[k] for k in ('wantsAt', 'auctionsAt') if k in m}
+    sig = hashlib.sha256(json.dumps([books, extra], sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     stp = os.path.join(site, 'state.json')
     old = json.load(open(stp)) if os.path.exists(stp) else {}
     changed = old.get('sig') != sig
@@ -128,7 +143,7 @@ def main():
         except Exception:
             now = datetime.datetime.utcnow() - datetime.timedelta(hours=8)
         upd = now.strftime('%B %-d, %Y, %-I:%M %p') + ' Pacific'
-        payload = json.dumps({'books': books, 'groups': groups, 'updated': upd}, ensure_ascii=False).encode()
+        payload = json.dumps({'books': books, 'groups': groups, 'updated': upd, **extra}, ensure_ascii=False).encode()
         open(os.path.join(site, 'data.bin'), 'wb').write(seal(ck, payload))
         json.dump({'sig': sig}, open(stp, 'w'))
     tpl = open(os.path.join(TOOLS, 'index.template.html')).read()
