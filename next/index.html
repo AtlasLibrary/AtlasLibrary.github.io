@@ -31,6 +31,29 @@ h1,h2,h3{text-wrap:balance;margin:0}
 h1.brand{display:flex;align-items:center;gap:.5em}
 .gate h1.brand{justify-content:center}
 h1.brand span.nm{color:inherit;font-style:normal}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--rule);margin:14px 0 2px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{font-weight:600;font-size:.95rem;color:var(--muted);padding:10px 12px;border-bottom:2px solid transparent;min-height:44px;white-space:nowrap;text-decoration:none;display:flex;align-items:center}
+.tabs a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+.pane-h{margin:20px 0 6px}.pane-h h2{font-family:var(--f-display);font-weight:500;font-size:1.45rem}
+.pane-h h3{font-family:var(--f-display);font-weight:500;font-size:1.15rem;margin:22px 0 8px}
+.pane-p{color:var(--muted);font-size:.9rem;max-width:68ch;margin:0 0 12px}
+.stack{display:grid;gap:10px}
+.mrow,.want{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;display:grid;gap:5px;min-width:0}
+.want{gap:8px;border-radius:12px;padding:14px 16px}
+.mrow .t1,.want .wt{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;justify-content:space-between}
+.mrow .tt{font-family:var(--f-display);font-style:italic;font-size:1.08rem;overflow-wrap:anywhere}
+.want .wt b{font-family:var(--f-display);font-weight:500;font-size:1.15rem}
+.mrow .meta,.when{color:var(--muted);font-size:.86rem;overflow-wrap:anywhere}
+.mrow .ev{font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.mrow .price{font-weight:700;font-variant-numeric:tabular-nums}
+.mrow a{color:var(--accent);font-weight:600;overflow-wrap:anywhere}
+.want dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 12px;margin:0;font-size:.9rem}
+.want dt{color:var(--muted);font-weight:600}.want dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;max-width:none}
+.pill{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.03em;padding:2px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.pill.warm{background:var(--gilt-soft);color:var(--gilt)}
+.empty-note{color:var(--muted);font-size:.9rem;padding:14px;border:1px dashed var(--rule);border-radius:10px}
+
 .newtag{font-family:var(--f-ui,system-ui,sans-serif);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-style:normal;color:var(--gilt);border:1px solid var(--gilt);border-radius:99px;padding:3px 9px;align-self:center;white-space:nowrap}
 h1.brand .logo{width:1.9em;height:1.9em;flex:none;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .mast{padding-bottom:14px;border-bottom:1px solid var(--rule)}
@@ -139,6 +162,7 @@ img[data-enc]:not([src]){visibility:hidden}
     <h1 class="brand"><img class="logo" src="../logo.png" alt="" width="96" height="96"><span class="nm">Atlas <span>Library</span></span><span class="newtag">Pro preview</span></h1>
     <p>Rare books from the collection of Scott W. Atlas</p>
   </header>
+  <nav class="tabs" id="tabs" aria-label="Sections"><a href="#" data-r="list" aria-current="page">Collection</a><a href="#desiderata" data-r="desiderata">Desiderata</a><a href="#market" data-r="market">Market</a></nav>
 
   <main id="v-list">
     <div class="summary" id="summary"></div>
@@ -167,6 +191,17 @@ img[data-enc]:not([src]){visibility:hidden}
     <div id="list" class="list"></div>
   </main>
 
+  <main id="v-des" hidden>
+    <div class="pane-h"><h2>Desiderata</h2></div>
+    <p class="pane-p">Books sought for the collection, with the edition and the points that identify the right copy. Dealer listings and auction lots are checked against them every day.</p>
+    <div id="des" class="stack"></div>
+  </main>
+  <main id="v-market" hidden>
+    <div class="pane-h"><h2>Market</h2><p class="when" id="m-when"></p></div>
+    <p class="pane-p">Copies of the desiderata found for sale, and upcoming auction lots of books in the collection or sought for it.</p>
+    <div class="pane-h"><h3>Copies for sale</h3></div><div id="m-matches" class="stack"></div>
+    <div class="pane-h"><h3>At auction</h3></div><div id="m-auctions" class="stack"></div>
+  </main>
   <main id="v-book" hidden>
     <button class="back" id="back" type="button">← All books</button>
     <div id="book"></div>
@@ -179,7 +214,7 @@ img[data-enc]:not([src]){visibility:hidden}
   <div class="bar"><button id="lb-prev" type="button">◀ Previous</button><span id="lb-cap"></span><button id="lb-next" type="button">Next ▶</button><button id="lb-close" type="button">Close</button></div>
 </div>
 <script>
-let BOOKS=[],GROUPS=[],UPDATED="";let CK=null;const ICACHE=new Map();
+let BOOKS=[],GROUPS=[],UPDATED="",X={wants:[],matches:[],auctions:[],meta:{}};let CK=null;const ICACHE=new Map();
 const b64d=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0)), b64e=u=>btoa(String.fromCharCode(...new Uint8Array(u)));
 async function openBox(key,buf){const u=new Uint8Array(buf);return crypto.subtle.decrypt({name:"AES-GCM",iv:u.slice(0,12)},key,u.slice(12));}
 async function fetchBin(p){const r=await fetch(p,{cache:"no-cache"});if(!r.ok)throw new Error(p+" "+r.status);return r.arrayBuffer();}
@@ -188,7 +223,7 @@ async function unwrap(pw){const kj=await (await fetch("key.json",{cache:"no-cach
   const kek=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b64d(kj.salt),iterations:kj.iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
   return openBox(kek,b64d(kj.wrapped));}
 async function loadData(raw){CK=await crypto.subtle.importKey("raw",raw,"AES-GCM",false,["decrypt"]);
-  const d=JSON.parse(new TextDecoder().decode(await openBox(CK,await fetchBin("data.bin"))));BOOKS=d.books;GROUPS=d.groups;UPDATED=d.updated;}
+  const d=JSON.parse(new TextDecoder().decode(await openBox(CK,await fetchBin("data.bin"))));BOOKS=d.books;GROUPS=d.groups;UPDATED=d.updated;X={wants:d.wants||[],matches:d.matches||[],auctions:d.auctions||[],meta:d.meta||{}};}
 function encSrc(img,path){if(!path)return;if(ICACHE.has(path)){img.src=ICACHE.get(path);return;}
   fetchBin(path).then(b=>openBox(CK,b)).then(p=>{const u=URL.createObjectURL(new Blob([p],{type:"image/jpeg"}));ICACHE.set(path,u);img.src=u;}).catch(()=>{});}
 const IO="IntersectionObserver" in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){IO.unobserve(e.target);encSrc(e.target,e.target.dataset.enc);}}),{rootMargin:"300px"}):null;
@@ -247,10 +282,36 @@ function renderBook(b){
     box.append(el("section",{class:"sect"},el("h3",{text:name}),dl));
   }
 }
+const usd=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(n||0);
+const fdate=t=>{if(!t)return"";const d=typeof t==="number"?new Date(t):new Date(String(t).slice(0,10)+"T12:00:00");return isNaN(d)?String(t):d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});};
+const lnk=(u,t)=>u?el("a",{href:u,target:"_blank",rel:"noopener",text:t}):null;
+function matchRow(m,showWant){const w=X.wants.find(x=>x.id===m.wantId),ok=m.verdict==="qualifies";
+  return el("div",{class:"mrow"},el("div",{class:"t1"},el("span",{class:"tt",text:m.title||(w&&w.title)||"Listing"}),el("span",{class:ok?"pill":"pill warm",text:ok?"Qualifies":"Check the evidence"})),
+    showWant&&w?el("div",{class:"meta",text:"Sought: "+[w.author,w.title].filter(Boolean).join(", ")}):null,
+    el("div",{class:"meta"},m.price!=null&&m.price!==""?el("span",{class:"price",text:usd(m.price)+" "}):null,[m.price==null?m.priceText:"",m.seller,m.location,m.condition].filter(Boolean).join(" · ")),
+    m.evidence?el("div",{class:"ev",text:m.evidence}):null,el("div",{class:"meta"},lnk(m.url,"Open listing")," ",el("span",{class:"when",text:"Found "+fdate(m.foundAt)})));}
+function renderDes(){const box=$("#des");box.replaceChildren();const ws=X.wants.filter(w=>w.active!==false).sort((a,b)=>sk(a.author).localeCompare(sk(b.author)));
+  if(!ws.length){box.append(el("p",{class:"empty-note",text:"No desiderata recorded yet."}));return;}
+  for(const w of ws){const dl=el("dl");const add=(l,v)=>{if(v!=null&&String(v).trim())dl.append(el("dt",{text:l}),el("dd",{text:String(v)}));};
+    add("Edition",w.edition);add("Language",w.language);add("Condition",w.minCondition?w.minCondition+" or better":"");add("Points",w.points);add("Excluded",w.reject);add("Notes",w.notes);
+    const ms=X.matches.filter(m=>m.wantId===w.id&&!m.dismissed).sort((a,b)=>(b.verdict==="qualifies")-(a.verdict==="qualifies")||(b.foundAt||0)-(a.foundAt||0));
+    box.append(el("div",{class:"want"},el("div",{class:"wt"},el("b",{text:[w.author,w.title].filter(Boolean).join(", ")}),el("span",{class:"when",text:w.lastSearched?"Last searched "+fdate(w.lastSearched):"Not yet searched"})),dl,...ms.map(m=>matchRow(m,false))));}}
+function renderMarket(){const mt=X.meta||{};$("#m-when").textContent=[mt.wantsAt?"Dealers checked "+fdate(mt.wantsAt):"",mt.auctionsAt?"Auctions checked "+fdate(mt.auctionsAt):""].filter(Boolean).join(" · ");
+  const mb=$("#m-matches");mb.replaceChildren();const ms=X.matches.filter(m=>!m.dismissed).sort((a,b)=>(b.foundAt||0)-(a.foundAt||0));
+  if(!ms.length)mb.append(el("p",{class:"empty-note",text:"No copies of the desiderata have been found yet."}));else ms.forEach(m=>mb.append(matchRow(m,true)));
+  const ab=$("#m-auctions");ab.replaceChildren();const today=new Date().toISOString().slice(0,10);
+  const as=X.auctions.filter(a=>!a.dismissed&&(!a.saleDate||a.saleDate>=today)).sort((a,b)=>String(a.saleDate||"9").localeCompare(String(b.saleDate||"9")));
+  if(!as.length){ab.append(el("p",{class:"empty-note",text:"No upcoming lots of books in the collection or the desiderata have been found."}));return;}
+  for(const a of as){const bk=a.bookId&&BOOKS.find(x=>x.id===a.bookId),w=a.wantId&&X.wants.find(x=>x.id===a.wantId);
+    ab.append(el("div",{class:"mrow"},el("div",{class:"t1"},el("span",{class:"tt",text:a.title||(bk&&bk.title)||(w&&w.title)||"Lot"}),el("span",{class:a.kind==="wanted"?"pill warm":"pill",text:a.kind==="wanted"?"In the desiderata":"In the collection"})),
+      el("div",{class:"meta",text:[a.house,a.sale,a.lot?"Lot "+a.lot:"",a.saleDate?fdate(a.saleDate):""].filter(Boolean).join(" · ")}),a.estimate?el("div",{class:"meta"},el("span",{class:"price",text:"Estimate "+a.estimate})):null,
+      a.note?el("div",{class:"ev",text:a.note}):null,el("div",{class:"meta"},lnk(a.url,"Open lot"),bk?" · ":null,bk?el("a",{href:"#book-"+bk.id,text:"See the copy in the collection"}):null)));}}
 function route(){
-  const m=location.hash.match(/^#book-([a-z0-9]+)$/i); const b=m&&BOOKS.find(x=>x.id===m[1]);
-  $("#v-list").hidden=!!b; $("#v-book").hidden=!b;
-  if(b){renderBook(b);window.scrollTo(0,0);}else renderList();
+  const h=location.hash, m=h.match(/^#book-([a-z0-9]+)$/i); const b=m&&BOOKS.find(x=>x.id===m[1]);
+  const r=b?"book":h==="#desiderata"?"desiderata":h==="#market"?"market":"list";
+  $("#v-list").hidden=r!=="list"; $("#v-book").hidden=r!=="book"; $("#v-des").hidden=r!=="desiderata"; $("#v-market").hidden=r!=="market";
+  $("#tabs").hidden=r==="book"; document.querySelectorAll("#tabs a").forEach(a=>a.setAttribute("aria-current",a.dataset.r===r?"page":"false"));
+  if(r==="book"){renderBook(b);window.scrollTo(0,0);}else if(r==="desiderata")renderDes();else if(r==="market")renderMarket();else renderList();
 }
 $("#back").onclick=()=>{location.hash="";};
 ["input","change"].forEach(ev=>{$("#q").addEventListener(ev,renderList);});
