@@ -31,6 +31,18 @@ h1,h2,h3{text-wrap:balance;margin:0}
 h1.brand{display:flex;align-items:center;gap:.5em}
 .gate h1.brand{justify-content:center}
 h1.brand span.nm{color:inherit;font-style:normal}
+
+.menubar{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 2px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+.menubar .here{font-family:var(--f-display);font-size:1.25rem;color:var(--ink)}
+.menubtn{display:flex;align-items:center;gap:8px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:8px;padding:8px 14px;min-height:42px;font:inherit;font-weight:600;font-size:.92rem;cursor:pointer}
+.menubtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.menubtn[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
+.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:30;width:min(320px,100%);background:var(--surface);border:1px solid var(--rule);border-radius:12px;box-shadow:0 10px 28px rgba(0,0,0,.14);padding:6px;display:grid}
+.menu a{display:grid;gap:2px;padding:11px 12px;border-radius:8px;text-decoration:none;color:var(--ink)}
+.menu a b{font-weight:700;font-size:.98rem}
+.menu a span{color:var(--muted);font-size:.84rem}
+.menu a:hover,.menu a[aria-current="page"]{background:var(--accent-soft)}
+.menu a[aria-current="page"] b{color:var(--accent)}
 .tabs{display:flex;gap:2px;border-bottom:1px solid var(--rule);margin:14px 0 2px;overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
 .tabs a{font-weight:600;font-size:.95rem;color:var(--muted);padding:10px 12px;border-bottom:2px solid transparent;min-height:44px;white-space:nowrap;text-decoration:none;display:flex;align-items:center}
@@ -173,7 +185,14 @@ img[data-enc]:not([src]){visibility:hidden}
     <h1 class="brand"><img class="logo" src="../logo.png" alt="" width="96" height="96"><span class="nm">Atlas <span>Library</span></span><span class="newtag">Pro preview</span></h1>
     <p>Rare books from the collection of Scott W. Atlas</p>
   </header>
-  <nav class="tabs" id="tabs" aria-label="Sections"><a href="#" data-r="list" aria-current="page">Collection</a><a href="#desiderata" data-r="desiderata">Desiderata</a><a href="#market" data-r="market">Market</a></nav>
+  <div class="menubar" id="tabs"><span class="here" id="here">Collection</span>
+    <button type="button" class="menubtn" id="menubtn" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
+    <nav class="menu" id="menu" aria-label="Sections" hidden>
+      <a href="#" data-r="list"><b>Collection</b><span>All the books, with filters</span></a>
+      <a href="#desiderata" data-r="desiderata"><b>Desiderata</b><span>Books sought for the collection</span></a>
+      <a href="#market" data-r="market"><b>Market</b><span>Copies found for sale and at auction</span></a>
+    </nav>
+  </div>
 
   <main id="v-list">
     <div class="summary" id="summary"></div>
@@ -388,11 +407,17 @@ function passDF(w){const q=fo($("#df-q").value.trim()),c=$("#df-cat").value,n=$(
   if(q&&!fo([w.author,w.title,w.edition,w.language,w.notes].join(" ")).includes(q))return false;if(c&&w.category!==c)return false;if(n&&w.century!==n)return false;
   if(st==="found"&&!X.matches.some(m=>m.wantId===w.id&&!m.dismissed))return false;return true;}
 $("#df-q").addEventListener("input",()=>renderDes());["df-cat","df-cen","df-state"].forEach(i=>$("#"+i).addEventListener("change",()=>renderDes()));
+function closeMenu(){ $("#menu").hidden=true; $("#menubtn").setAttribute("aria-expanded","false"); }
+$("#menubtn").addEventListener("click",e=>{ e.stopPropagation(); const open=$("#menu").hidden; $("#menu").hidden=!open; $("#menubtn").setAttribute("aria-expanded",String(open)); });
+document.addEventListener("click",e=>{ if(!$("#menu").hidden&&!e.target.closest("#menu")) closeMenu(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeMenu(); });
+$("#menu").addEventListener("click",e=>{ const a=e.target.closest("a"); if(a&&(a.getAttribute("href")===location.hash||(a.getAttribute("href")==="#"&&!location.hash))) { closeMenu(); } });
 function route(){
   const h=location.hash, m=h.match(/^#book-([a-z0-9]+)$/i); const b=m&&BOOKS.find(x=>x.id===m[1]);
   const r=b?"book":h==="#desiderata"?"desiderata":h==="#market"?"market":"list";
   $("#v-list").hidden=r!=="list"; $("#v-book").hidden=r!=="book"; $("#v-des").hidden=r!=="desiderata"; $("#v-market").hidden=r!=="market";
-  $("#tabs").hidden=r==="book"; document.querySelectorAll("#tabs a").forEach(a=>a.setAttribute("aria-current",a.dataset.r===r?"page":"false"));
+  $("#tabs").hidden=r==="book"; document.querySelectorAll("#menu a").forEach(a=>a.setAttribute("aria-current",a.dataset.r===r?"page":"false"));
+  $("#here").textContent={list:"Collection",desiderata:"Desiderata",market:"Market"}[r]||""; closeMenu();
   try{fillFilters();}catch(e){}
   if(r==="book"){renderBook(b);window.scrollTo(0,0);}else if(r==="desiderata")renderDes();else if(r==="market")renderMarket();else renderList();
 }
