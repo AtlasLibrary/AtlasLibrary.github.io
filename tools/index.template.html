@@ -66,7 +66,13 @@ h1.brand .logo{width:1.9em;height:1.9em;flex:none;border-radius:50%;box-shadow:0
 .vsw button+button{border-left:1px solid var(--rule)}
 .vsw button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
 .list.tiles{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-.list.tiles>.ghead,.list.tiles>.empty,.list.tiles>p,.list.tiles>div:not(.ghead):not(.row){grid-column:1/-1}
+.list.tiles>.ghead,.list.tiles>.empty,.list.tiles>p,.list.tiles>div:not(.ghead):not(.row):not(.gbox){grid-column:1/-1}
+.gbox{min-width:0;display:flex;flex-direction:column}
+.list.tiles .gbox .ghead{display:block;margin:8px 0 8px}
+.list.tiles .gbox .ghead h2{font-size:1.05rem;line-height:1.2;overflow-wrap:anywhere}
+.list.tiles .gbox .ghead span{display:block;font-size:.75rem;margin-top:2px}
+.gtiles{display:grid;gap:12px;flex:1}
+
 .list.tiles .row{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:8px 8px 10px;height:100%}
 .list.tiles .twrap{width:100%;height:auto;aspect-ratio:3/4}
 .list.tiles .twrap .thumb{width:100%;height:100%}
@@ -215,7 +221,10 @@ function renderList(){
   rows.sort((a,b)=>cmp(a,b,by));
   if(!g){rows.forEach(b=>list.append(row(b)));return;}
   const m=new Map();rows.forEach(b=>{const k=glabel(b,g);if(!m.has(k))m.set(k,[]);m.get(k).push(b);});
-  [...m.keys()].sort((a,b)=>gsort(a,b,g)).forEach(k=>{const it=m.get(k);list.append(el("div",{class:"ghead"},el("h2",{text:k}),el("span",{text:it.length+(it.length===1?" book":" books")})));it.forEach(b=>list.append(row(b)));});
+  const T=VIEW==="tiles", cols=T?Math.max(1,getComputedStyle(list).gridTemplateColumns.split(" ").filter(Boolean).length):0;
+  [...m.keys()].sort((a,b)=>gsort(a,b,g)).forEach(k=>{const it=m.get(k),hd=el("div",{class:"ghead"},el("h2",{text:k}),el("span",{text:it.length+(it.length===1?" book":" books")}));
+    if(T){const sp=Math.min(it.length,cols),gt=el("div",{class:"gtiles",style:"grid-template-columns:repeat("+sp+",minmax(0,1fr))"});it.forEach(b=>gt.append(row(b)));list.append(el("div",{class:"gbox",style:"grid-column:span "+sp},hd,gt));}
+    else{list.append(hd);it.forEach(b=>list.append(row(b)));}});
 }
 let lbList=[],lbI=0;
 function lbShow(){const p=lbList[lbI];$("#lb-img").removeAttribute("src");encSrc($("#lb-img"),p.src);$("#lb-img").alt=p.label||"";$("#lb-cap").textContent=(p.label||"")+"  "+(lbI+1)+" of "+lbList.length;$("#lb-prev").disabled=lbI===0;$("#lb-next").disabled=lbI===lbList.length-1;}
@@ -248,7 +257,8 @@ $("#back").onclick=()=>{location.hash="";};
   VIEW=v.view==="tiles"?"tiles":"list";})();
 function saveView(){try{localStorage.setItem("atlasView",JSON.stringify({sort:$("#sort").value,group:$("#group").value,view:VIEW}))}catch(e){}}
 function applyView(){$("#list").classList.toggle("tiles",VIEW==="tiles");document.querySelectorAll(".vsw button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.v===VIEW)));}
-document.querySelectorAll(".vsw button").forEach(x=>x.addEventListener("click",()=>{VIEW=x.dataset.v;saveView();applyView();}));
+document.querySelectorAll(".vsw button").forEach(x=>x.addEventListener("click",()=>{VIEW=x.dataset.v;saveView();applyView();if(!$("#v-list").hidden)renderList();}));
+let lastCols=0;window.addEventListener("resize",()=>{if(VIEW!=="tiles"||$("#v-list").hidden)return;const c=getComputedStyle($("#list")).gridTemplateColumns.split(" ").length;if(c!==lastCols){lastCols=c;renderList();}});
 applyView();
 $("#sort").addEventListener("change",()=>{saveView();renderList();});$("#group").addEventListener("change",()=>{saveView();renderList();});
 window.addEventListener("hashchange",route);
