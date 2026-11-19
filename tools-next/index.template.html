@@ -53,6 +53,17 @@ h1.brand span.nm{color:inherit;font-style:normal}
 .pill{display:inline-block;font-size:.74rem;font-weight:700;letter-spacing:.03em;padding:2px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
 .pill.warm{background:var(--gilt-soft);color:var(--gilt)}
 .empty-note{color:var(--muted);font-size:.9rem;padding:14px;border:1px dashed var(--rule);border-radius:10px}
+.fbar{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;margin:0 0 12px}
+.fbar summary{cursor:pointer;font-weight:600;font-size:.92rem;color:var(--accent);list-style:none;display:flex;align-items:center;gap:8px;min-height:32px}
+.fbar summary::-webkit-details-marker{display:none}
+.fcount{font-size:.75rem;color:var(--gilt);background:var(--gilt-soft);border-radius:99px;padding:1px 8px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px 12px;margin-top:10px}
+.fgrid label{display:grid;gap:3px;font-size:.8rem;font-weight:600;color:var(--muted)}
+.fgrid input,.fgrid select{font:inherit;font-size:.9rem;color:var(--ink);background:var(--paper);border:1px solid var(--rule);border-radius:7px;padding:6px 9px;min-height:38px;width:100%}
+.fgrid .two{display:flex;gap:6px}
+.fact{display:flex;justify-content:flex-end;margin-top:8px}
+.fact button{border:0;background:none;color:var(--muted);font:inherit;font-weight:600;font-size:.88rem;min-height:36px;cursor:pointer}
+
 
 .newtag{font-family:var(--f-ui,system-ui,sans-serif);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-style:normal;color:var(--gilt);border:1px solid var(--gilt);border-radius:99px;padding:3px 9px;align-self:center;white-space:nowrap}
 h1.brand .logo{width:1.9em;height:1.9em;flex:none;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.25)}
@@ -188,17 +199,44 @@ img[data-enc]:not([src]){visibility:hidden}
       </label>
       <div class="vsw" role="group" aria-label="Display as"><button type="button" data-v="list" aria-pressed="true">List</button><button type="button" data-v="tiles" aria-pressed="false">Tiles</button></div>
     </div>
+    <details class="fbar" id="c-fbar"><summary>Refine the list <span class="fcount" id="c-fcount" hidden></span></summary>
+      <div class="fgrid">
+        <label>Author<input id="cf-author" placeholder="Any author"></label>
+        <label>Category<select id="cf-category"></select></label>
+        <label>Century<select id="cf-century"><option value="">Any century</option><option>15th century</option><option>16th century</option><option>17th century</option><option>18th century</option><option>19th century</option><option>20th century</option><option>21st century</option></select></label>
+        <label>Language<select id="cf-language"></select></label>
+        <label>Edition<select id="cf-edition"></select></label>
+        <label>Condition, at least<select id="cf-cond"><option value="">Any</option><option>Fine</option><option>Near Fine</option><option>Very Good</option><option>Good</option><option>Fair</option></select></label>
+        <label>Signed or inscribed<select id="cf-signed"><option value="">Any</option><option value="yes">Signed or inscribed</option><option value="no">Not signed</option></select></label>
+        <label>Year<span class="two"><input id="cf-y1" inputmode="numeric" placeholder="From"><input id="cf-y2" inputmode="numeric" placeholder="To"></span></label>
+      </div>
+      <div class="fact"><button type="button" id="cf-clear">Clear filters</button></div>
+    </details>
     <div id="list" class="list"></div>
   </main>
 
   <main id="v-des" hidden>
     <div class="pane-h"><h2>Desiderata</h2></div>
     <p class="pane-p">Books sought for the collection, with the edition and the points that identify the right copy. Dealer listings and auction lots are checked against them every day.</p>
+    <div class="fgrid" style="margin:0 0 12px"><label>Search the desiderata<input id="df-q" placeholder="Author, title, edition"></label><label>Category<select id="df-cat"></select></label><label>Century<select id="df-cen"><option value="">Any century</option><option>15th century</option><option>16th century</option><option>17th century</option><option>18th century</option><option>19th century</option><option>20th century</option><option>21st century</option></select></label><label>Show<select id="df-state"><option value="">All</option><option value="found">With copies found</option></select></label></div>
     <div id="des" class="stack"></div>
   </main>
   <main id="v-market" hidden>
     <div class="pane-h"><h2>Market</h2><p class="when" id="m-when"></p></div>
     <p class="pane-p">Copies of the desiderata found for sale, and upcoming auction lots of books in the collection or sought for it.</p>
+    <details class="fbar"><summary>Refine</summary>
+      <div class="fgrid">
+        <label>Desideratum<select id="mf-want"></select></label>
+        <label>Verdict<select id="mf-verdict"><option value="">Any</option><option value="qualifies">Qualifies</option><option value="uncertain">Check the evidence</option></select></label>
+        <label>Language<select id="mf-lang"></select></label>
+        <label>Category<select id="mf-cat"></select></label>
+        <label>Century<select id="mf-cen"><option value="">Any century</option><option>15th century</option><option>16th century</option><option>17th century</option><option>18th century</option><option>19th century</option><option>20th century</option><option>21st century</option></select></label>
+        <label>Highest price (USD)<input id="mf-max" inputmode="decimal" placeholder="Any"></label>
+        <label>Condition, at least<select id="mf-cond"><option value="">Any</option><option>Fine</option><option>Near Fine</option><option>Very Good</option><option>Good</option><option>Fair</option></select></label>
+        <label>Seller, country or site<input id="mf-text" placeholder="e.g. France"></label>
+      </div>
+      <div class="fact"><button type="button" id="mf-clear">Clear filters</button></div>
+    </details>
     <div class="pane-h"><h3>Copies for sale</h3></div><div id="m-matches" class="stack"></div>
     <div class="pane-h"><h3>At auction</h3></div><div id="m-auctions" class="stack"></div>
   </main>
@@ -254,7 +292,7 @@ function renderList(){
   const n=BOOKS.length;
   $("#summary").replaceChildren(el("div",null,el("span",{class:"big",text:String(n)}),el("span",{class:"lbl",text:"books"})),el("div",null,el("span",{class:"big",text:String(BOOKS.filter(isFirst).length)}),el("span",{class:"lbl",text:"first editions"})));
   const fold=x=>String(x??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’‘`´]/g,"'").toLowerCase(), q=fold($("#q").value.trim()), by=$("#sort").value, g=$("#group").value, list=$("#list"); list.replaceChildren();
-  let rows=q?BOOKS.filter(b=>Object.values(b).some(v=>typeof v==="string"&&fold(v).includes(q))):[...BOOKS];
+  let rows=(q?BOOKS.filter(b=>Object.values(b).some(v=>typeof v==="string"&&fold(v).includes(q))):[...BOOKS]).filter(passCF);
   if(!rows.length){list.append(el("p",{class:"empty",text:"No books match that search."}));return;}
   rows.sort((a,b)=>cmp(a,b,by));
   if(!g){rows.forEach(b=>list.append(row(b)));return;}
@@ -290,14 +328,14 @@ function matchRow(m,showWant){const w=X.wants.find(x=>x.id===m.wantId),ok=m.verd
     showWant&&w?el("div",{class:"meta",text:"Sought: "+[w.author,w.title].filter(Boolean).join(", ")}):null,
     el("div",{class:"meta"},m.price!=null&&m.price!==""?el("span",{class:"price",text:usd(m.price)+" "}):null,[m.price==null?m.priceText:"",m.seller,m.location,m.condition].filter(Boolean).join(" · ")),
     m.evidence?el("div",{class:"ev",text:m.evidence}):null,el("div",{class:"meta"},lnk(m.url,"Open listing")," ",el("span",{class:"when",text:"Found "+fdate(m.foundAt)})));}
-function renderDes(){const box=$("#des");box.replaceChildren();const ws=X.wants.filter(w=>w.active!==false).sort((a,b)=>sk(a.author).localeCompare(sk(b.author)));
+function renderDes(){const box=$("#des");box.replaceChildren();const ws=X.wants.filter(w=>w.active!==false).filter(passDF).sort((a,b)=>sk(a.author).localeCompare(sk(b.author)));
   if(!ws.length){box.append(el("p",{class:"empty-note",text:"No desiderata recorded yet."}));return;}
   for(const w of ws){const dl=el("dl");const add=(l,v)=>{if(v!=null&&String(v).trim())dl.append(el("dt",{text:l}),el("dd",{text:String(v)}));};
-    add("Edition",w.edition);add("Language",w.language);add("Condition",w.minCondition?w.minCondition+" or better":"");add("Points",w.points);add("Excluded",w.reject);add("Notes",w.notes);
+    add("Edition",w.edition);add("Language",w.language);add("Category",w.category);add("Century",w.century);add("Format",w.format);add("Must have",w.mustHave);add("Sellers in",w.region);add("Condition",w.minCondition?w.minCondition+" or better":"");add("Points",w.points);add("Excluded",w.reject);add("Notes",w.notes);
     const ms=X.matches.filter(m=>m.wantId===w.id&&!m.dismissed).sort((a,b)=>(b.verdict==="qualifies")-(a.verdict==="qualifies")||(b.foundAt||0)-(a.foundAt||0));
     box.append(el("div",{class:"want"},el("div",{class:"wt"},el("b",{text:[w.author,w.title].filter(Boolean).join(", ")}),el("span",{class:"when",text:w.lastSearched?"Last searched "+fdate(w.lastSearched):"Not yet searched"})),dl,...ms.map(m=>matchRow(m,false))));}}
 function renderMarket(){const mt=X.meta||{};$("#m-when").textContent=[mt.wantsAt?"Dealers checked "+fdate(mt.wantsAt):"",mt.auctionsAt?"Auctions checked "+fdate(mt.auctionsAt):""].filter(Boolean).join(" · ");
-  const mb=$("#m-matches");mb.replaceChildren();const ms=X.matches.filter(m=>!m.dismissed).sort((a,b)=>(b.foundAt||0)-(a.foundAt||0));
+  const mb=$("#m-matches");mb.replaceChildren();const ms=X.matches.filter(m=>!m.dismissed).filter(passMF).sort((a,b)=>(b.foundAt||0)-(a.foundAt||0));
   if(!ms.length)mb.append(el("p",{class:"empty-note",text:"No copies of the desiderata have been found yet."}));else ms.forEach(m=>mb.append(matchRow(m,true)));
   const ab=$("#m-auctions");ab.replaceChildren();const today=new Date().toISOString().slice(0,10);
   const as=X.auctions.filter(a=>!a.dismissed&&(!a.saleDate||a.saleDate>=today)).sort((a,b)=>String(a.saleDate||"9").localeCompare(String(b.saleDate||"9")));
@@ -306,11 +344,56 @@ function renderMarket(){const mt=X.meta||{};$("#m-when").textContent=[mt.wantsAt
     ab.append(el("div",{class:"mrow"},el("div",{class:"t1"},el("span",{class:"tt",text:a.title||(bk&&bk.title)||(w&&w.title)||"Lot"}),el("span",{class:a.kind==="wanted"?"pill warm":"pill",text:a.kind==="wanted"?"In the desiderata":"In the collection"})),
       el("div",{class:"meta",text:[a.house,a.sale,a.lot?"Lot "+a.lot:"",a.saleDate?fdate(a.saleDate):""].filter(Boolean).join(" · ")}),a.estimate?el("div",{class:"meta"},el("span",{class:"price",text:"Estimate "+a.estimate})):null,
       a.note?el("div",{class:"ev",text:a.note}):null,el("div",{class:"meta"},lnk(a.url,"Open lot"),bk?" · ":null,bk?el("a",{href:"#book-"+bk.id,text:"See the copy in the collection"}):null)));}}
+
+const CATEGORIES=["Fiction","Poetry and drama","Philosophy","Political thought","Economics","History","Law","Religion","Science and medicine","Literary criticism","Essays and letters","Other"];
+function categoryOf(b){ if(b.category&&CATEGORIES.includes(b.category)) return b.category; const t=((b.genre||"")+" "+(b.subject||"")).toLowerCase();
+  const R=[["Literary criticism",/critic/],["Fiction",/novel|novella|fiction|short stor|récit|tale/],["Poetry and drama",/poe|verse|drama|play\b|theat/],["Religion",/bible|liturg|theolog|relig|scripture/],["Law",/legal|law\b|jurispr/],["Economics",/econom/],["Political thought",/politic|pamphlet|polemic|government|democra/],["Philosophy",/philosoph/],["History",/histor|reportage/],["Science and medicine",/scien|medic|natural/],["Essays and letters",/essay|letter|journalism|lecture|proceedings/]];
+  for(const [c,re] of R) if(re.test(t)) return c; return t.trim()?"Other":""; }
+function centuryOf(y){ if(y==null) return ""; const c=Math.floor((y-1)/100)+1; return c+(c===21?"st":"th")+" century"; }
+const GR={"Fine":6,"Near Fine":5,"Very Good":4,"Good":3,"Fair":2,"Poor":1};
+const numv=v=>{const n=parseFloat(String(v||"").replace(/[$,\s]/g,""));return isFinite(n)?n:null;};
+const fo=x=>String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const CF={},cfIds=["author","category","century","language","edition","cond","signed","y1","y2"];
+function setOpts(sel,vals,label){const cur=sel.value;sel.replaceChildren(el("option",{value:"",text:label}),...vals.map(v=>el("option",{value:v,text:v})));sel.value=vals.includes(cur)?cur:"";}
+function fillFilters(){const uq=k=>[...new Set(BOOKS.map(b=>String(b[k]||"").trim()).filter(Boolean))].sort();
+  setOpts($("#cf-category"),CATEGORIES.filter(c=>BOOKS.some(b=>categoryOf(b)===c)),"Any category");setOpts($("#cf-language"),uq("language"),"Any language");setOpts($("#cf-edition"),uq("editionStatus"),"Any edition");
+  const ws=X.wants.filter(w=>w.active!==false);
+  setOpts($("#mf-want"),[],"All desiderata");$("#mf-want").append(...ws.map(w=>el("option",{value:w.id,text:[w.author,w.title].filter(Boolean).join(", ").slice(0,70)})));
+  setOpts($("#mf-lang"),[...new Set(ws.map(w=>w.language).filter(Boolean))].sort(),"Any language");
+  const cats=[...new Set(ws.map(w=>w.category).filter(Boolean))].sort();setOpts($("#mf-cat"),cats,"Any category");setOpts($("#df-cat"),cats,"Any category");}
+function passCF(b){
+  if(CF.author&&!fo(b.author).includes(fo(CF.author)))return false;
+  if(CF.category&&categoryOf(b)!==CF.category)return false;
+  if(CF.century&&centuryOf(yearOf(b))!==CF.century)return false;
+  if(CF.language&&String(b.language||"").trim()!==CF.language)return false;
+  if(CF.edition&&String(b.editionStatus||"").trim()!==CF.edition)return false;
+  if(CF.cond&&(GR[b.conditionBook]||0)<GR[CF.cond])return false;
+  const sg=/Signed|Inscribed|Association/.test(b.signed||"");if(CF.signed==="yes"&&!sg)return false;if(CF.signed==="no"&&sg)return false;
+  const y=yearOf(b);if(numv(CF.y1)!=null&&(y==null||y<numv(CF.y1)))return false;if(numv(CF.y2)!=null&&(y==null||y>numv(CF.y2)))return false;
+  return true;}
+function readCF(){for(const k of cfIds)CF[k]=$("#cf-"+k).value.trim();const n=cfIds.filter(k=>CF[k]).length;$("#c-fcount").textContent=n?n+" active":"";$("#c-fcount").hidden=!n;renderList();}
+cfIds.forEach(k=>{const e=$("#cf-"+k);e.addEventListener(e.tagName==="SELECT"?"change":"input",readCF);});
+$("#cf-clear").onclick=()=>{cfIds.forEach(k=>$("#cf-"+k).value="");readCF();};
+const MF={},mfIds=["want","verdict","lang","cat","cen","max","cond","text"];
+function passMF(m){const w=X.wants.find(x=>x.id===m.wantId);
+  if(MF.want&&m.wantId!==MF.want)return false;if(MF.verdict&&m.verdict!==MF.verdict)return false;
+  if(MF.lang&&(!w||w.language!==MF.lang))return false;if(MF.cat&&(!w||w.category!==MF.cat))return false;if(MF.cen&&(!w||w.century!==MF.cen))return false;
+  if(numv(MF.max)!=null&&(m.price==null||m.price===""||Number(m.price)>numv(MF.max)))return false;
+  if(MF.cond){const g=Object.keys(GR).find(k=>new RegExp("\\b"+k+"\\b","i").test(m.condition||""));if(!g||GR[g]<GR[MF.cond])return false;}
+  if(MF.text&&!fo([m.seller,m.location,m.url,m.title,m.evidence].join(" ")).includes(fo(MF.text)))return false;return true;}
+function readMF(){for(const k of mfIds)MF[k]=$("#mf-"+k).value.trim();renderMarket();}
+mfIds.forEach(k=>{const e=$("#mf-"+k);e.addEventListener(e.tagName==="SELECT"?"change":"input",readMF);});
+$("#mf-clear").onclick=()=>{mfIds.forEach(k=>$("#mf-"+k).value="");readMF();};
+function passDF(w){const q=fo($("#df-q").value.trim()),c=$("#df-cat").value,n=$("#df-cen").value,st=$("#df-state").value;
+  if(q&&!fo([w.author,w.title,w.edition,w.language,w.notes].join(" ")).includes(q))return false;if(c&&w.category!==c)return false;if(n&&w.century!==n)return false;
+  if(st==="found"&&!X.matches.some(m=>m.wantId===w.id&&!m.dismissed))return false;return true;}
+$("#df-q").addEventListener("input",()=>renderDes());["df-cat","df-cen","df-state"].forEach(i=>$("#"+i).addEventListener("change",()=>renderDes()));
 function route(){
   const h=location.hash, m=h.match(/^#book-([a-z0-9]+)$/i); const b=m&&BOOKS.find(x=>x.id===m[1]);
   const r=b?"book":h==="#desiderata"?"desiderata":h==="#market"?"market":"list";
   $("#v-list").hidden=r!=="list"; $("#v-book").hidden=r!=="book"; $("#v-des").hidden=r!=="desiderata"; $("#v-market").hidden=r!=="market";
   $("#tabs").hidden=r==="book"; document.querySelectorAll("#tabs a").forEach(a=>a.setAttribute("aria-current",a.dataset.r===r?"page":"false"));
+  try{fillFilters();}catch(e){}
   if(r==="book"){renderBook(b);window.scrollTo(0,0);}else if(r==="desiderata")renderDes();else if(r==="market")renderMarket();else renderList();
 }
 $("#back").onclick=()=>{location.hash="";};
