@@ -168,6 +168,7 @@ dd.t{font-family:var(--f-display);font-style:italic;font-size:1.08rem}
 .gate .err{color:#a33;font-size:.9rem;min-height:1.2em}
 .lockbtn{border:0;background:none;color:var(--muted);font:inherit;font-size:.84rem;text-decoration:underline;cursor:pointer;padding:0;margin-left:8px}
 img[data-enc]:not([src]){visibility:hidden}
+.avail{font-size:.8rem;margin-top:3px}.avail.ok{color:var(--accent)}.avail.unk{color:var(--muted);font-style:italic}
 </style>
 
 </head><body>
@@ -349,10 +350,16 @@ function renderBook(b){
 const usd=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(n||0);
 const fdate=t=>{if(!t)return"";const d=typeof t==="number"?new Date(t):new Date(String(t).slice(0,10)+"T12:00:00");return isNaN(d)?String(t):d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});};
 const lnk=(u,t)=>u?el("a",{href:u,target:"_blank",rel:"noopener",text:t}):null;
+function availLine(x,lot){
+  const D=864e5, now=Date.now(), ck=+x.checkedAt||0, fl=+x.checkFailedAt||0;
+  const when=t=>{ const d=new Date(t), n=new Date(); const days=Math.round((new Date(n.getFullYear(),n.getMonth(),n.getDate())-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/D); return days<=0?"today":days===1?"yesterday":d.toLocaleDateString("en-US",{month:"short",day:"numeric"}); };
+  if(ck&&now-ck<3*D&&!(fl>ck)) return el("div",{class:"avail ok",text:"✓ "+(lot?"Still in the sale":"Available")+", checked "+when(ck)});
+  return el("div",{class:"avail unk",text:(lot?"Not confirmed that the lot is still in the sale":"Availability not confirmed")+(ck?" · last seen "+(lot?"in the sale ":"for sale ")+when(ck):"")});
+}
 function matchRow(m,showWant){const w=X.wants.find(x=>x.id===m.wantId),ok=m.verdict==="qualifies";
   return el("div",{class:"mrow"},el("div",{class:"t1"},el("span",{class:"tt",text:m.title||(w&&w.title)||"Listing"}),el("span",{class:ok?"pill":"pill warm",text:ok?"Qualifies":"Check the evidence"})),
     showWant&&w?el("div",{class:"meta",text:"Sought: "+[w.author,w.title].filter(Boolean).join(", ")}):null,
-    el("div",{class:"meta"},m.price!=null&&m.price!==""?el("span",{class:"price",text:usd(m.price)+" "}):null,[m.price==null?m.priceText:"",m.seller,m.location,m.condition].filter(Boolean).join(" · ")),
+    el("div",{class:"meta"},m.price!=null&&m.price!==""?el("span",{class:"price",text:usd(m.price)+" "}):null,[m.price==null?m.priceText:"",m.seller,m.location,m.condition].filter(Boolean).join(" · ")),availLine(m),
     m.evidence?el("div",{class:"ev",text:m.evidence}):null,el("div",{class:"meta"},lnk(m.url,"Open listing")," ",el("span",{class:"when",text:"Found "+fdate(m.foundAt)})));}
 function renderDes(){const box=$("#des");box.replaceChildren();const ws=X.wants.filter(w=>w.active!==false).filter(passDF).sort((a,b)=>sk(a.author).localeCompare(sk(b.author)));
   if(!ws.length){box.append(el("p",{class:"empty-note",text:"No desiderata recorded yet."}));return;}
@@ -368,7 +375,7 @@ function renderMarket(){const mt=X.meta||{};$("#m-when").textContent=[mt.wantsAt
   if(!as.length){ab.append(el("p",{class:"empty-note",text:"No upcoming lots of books in the collection or the desiderata have been found."}));return;}
   for(const a of as){const bk=a.bookId&&BOOKS.find(x=>x.id===a.bookId),w=a.wantId&&X.wants.find(x=>x.id===a.wantId);
     ab.append(el("div",{class:"mrow"},el("div",{class:"t1"},el("span",{class:"tt",text:a.title||(bk&&bk.title)||(w&&w.title)||"Lot"}),el("span",{class:a.kind==="wanted"?"pill warm":"pill",text:a.kind==="wanted"?"In the desiderata":"In the collection"})),
-      el("div",{class:"meta",text:[a.house,a.sale,a.lot?"Lot "+a.lot:"",a.saleDate?fdate(a.saleDate):""].filter(Boolean).join(" · ")}),a.estimate?el("div",{class:"meta"},el("span",{class:"price",text:"Estimate "+a.estimate})):null,
+      el("div",{class:"meta",text:[a.house,a.sale,a.lot?"Lot "+a.lot:"",a.saleDate?fdate(a.saleDate):""].filter(Boolean).join(" · ")}),a.estimate?el("div",{class:"meta"},el("span",{class:"price",text:"Estimate "+a.estimate})):null,availLine(a,true),
       a.note?el("div",{class:"ev",text:a.note}):null,el("div",{class:"meta"},lnk(a.url,"Open lot"),bk?" · ":null,bk?el("a",{href:"#book-"+bk.id,text:"See the copy in the collection"}):null)));}}
 
 const CATEGORIES=["Fiction","Poetry and drama","Philosophy","Political thought","Economics","History","Law","Religion","Science and medicine","Literary criticism","Essays and letters","Other"];
