@@ -120,8 +120,8 @@ def main():
     extra = {}
     if a.extra:
         for c, keep in (('wants', ('author','title','edition','language','category','century','format','mustHave','region','points','reject','maxPrice','minCondition','notes','active','lastSearched','frequency')),
-                        ('matches', ('wantId','title','seller','location','price','priceText','condition','url','verdict','evidence','foundAt','dismissed')),
-                        ('auctions', ('kind','bookId','wantId','title','house','sale','saleDate','lot','estimate','url','note','foundAt','dismissed'))):
+                        ('matches', ('wantId','title','seller','location','price','priceText','condition','url','verdict','evidence','foundAt','dismissed','gone')),
+                        ('auctions', ('kind','bookId','wantId','title','house','sale','saleDate','lot','estimate','url','note','foundAt','dismissed','gone'))):
             d = os.path.join(a.extra, c); rows = []
             if os.path.isdir(d):
                 for fn in sorted(os.listdir(d)):

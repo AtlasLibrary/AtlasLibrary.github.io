@@ -358,13 +358,13 @@ function renderDes(){const box=$("#des");box.replaceChildren();const ws=X.wants.
   if(!ws.length){box.append(el("p",{class:"empty-note",text:"No desiderata recorded yet."}));return;}
   for(const w of ws){const dl=el("dl");const add=(l,v)=>{if(v!=null&&String(v).trim())dl.append(el("dt",{text:l}),el("dd",{text:String(v)}));};
     add("Edition",w.edition);add("Language",w.language);add("Category",w.category);add("Century",w.century);add("Format",w.format);add("Must have",w.mustHave);add("Sellers in",w.region);add("Condition",w.minCondition?w.minCondition+" or better":"");add("Points",w.points);add("Excluded",w.reject);add("Notes",w.notes);
-    const ms=X.matches.filter(m=>m.wantId===w.id&&!m.dismissed).sort((a,b)=>(b.verdict==="qualifies")-(a.verdict==="qualifies")||(b.foundAt||0)-(a.foundAt||0));
+    const ms=X.matches.filter(m=>m.wantId===w.id&&!m.dismissed&&!m.gone).sort((a,b)=>(b.verdict==="qualifies")-(a.verdict==="qualifies")||(b.foundAt||0)-(a.foundAt||0));
     box.append(el("div",{class:"want"},el("div",{class:"wt"},el("b",{text:[w.author,w.title].filter(Boolean).join(", ")}),el("span",{class:"when",text:w.lastSearched?"Last searched "+fdate(w.lastSearched):"Not yet searched"})),dl,...ms.map(m=>matchRow(m,false))));}}
 function renderMarket(){const mt=X.meta||{};$("#m-when").textContent=[mt.wantsAt?"Dealers checked "+fdate(mt.wantsAt):"",mt.auctionsAt?"Auctions checked "+fdate(mt.auctionsAt):""].filter(Boolean).join(" · ");
-  const mb=$("#m-matches");mb.replaceChildren();const ms=X.matches.filter(m=>!m.dismissed).filter(passMF).sort((a,b)=>(b.foundAt||0)-(a.foundAt||0));
+  const mb=$("#m-matches");mb.replaceChildren();const ms=X.matches.filter(m=>!m.dismissed&&!m.gone).filter(passMF).sort((a,b)=>(b.foundAt||0)-(a.foundAt||0));
   if(!ms.length)mb.append(el("p",{class:"empty-note",text:"No copies of the desiderata have been found yet."}));else ms.forEach(m=>mb.append(matchRow(m,true)));
   const ab=$("#m-auctions");ab.replaceChildren();const today=new Date().toISOString().slice(0,10);
-  const as=X.auctions.filter(a=>!a.dismissed&&(!a.saleDate||a.saleDate>=today)).sort((a,b)=>String(a.saleDate||"9").localeCompare(String(b.saleDate||"9")));
+  const as=X.auctions.filter(a=>!a.dismissed&&!a.gone&&(!a.saleDate||a.saleDate>=today)).sort((a,b)=>String(a.saleDate||"9").localeCompare(String(b.saleDate||"9")));
   if(!as.length){ab.append(el("p",{class:"empty-note",text:"No upcoming lots of books in the collection or the desiderata have been found."}));return;}
   for(const a of as){const bk=a.bookId&&BOOKS.find(x=>x.id===a.bookId),w=a.wantId&&X.wants.find(x=>x.id===a.wantId);
     ab.append(el("div",{class:"mrow"},el("div",{class:"t1"},el("span",{class:"tt",text:a.title||(bk&&bk.title)||(w&&w.title)||"Lot"}),el("span",{class:a.kind==="wanted"?"pill warm":"pill",text:a.kind==="wanted"?"In the desiderata":"In the collection"})),
@@ -412,7 +412,7 @@ mfIds.forEach(k=>{const e=$("#mf-"+k);e.addEventListener(e.tagName==="SELECT"?"c
 $("#mf-clear").onclick=()=>{mfIds.forEach(k=>$("#mf-"+k).value="");readMF();};
 function passDF(w){const q=fo($("#df-q").value.trim()),c=$("#df-cat").value,n=$("#df-cen").value,st=$("#df-state").value;
   if(q&&!fo([w.author,w.title,w.edition,w.language,w.notes].join(" ")).includes(q))return false;if(c&&w.category!==c)return false;if(n&&w.century!==n)return false;
-  if(st==="found"&&!X.matches.some(m=>m.wantId===w.id&&!m.dismissed))return false;return true;}
+  if(st==="found"&&!X.matches.some(m=>m.wantId===w.id&&!m.dismissed&&!m.gone))return false;return true;}
 $("#df-q").addEventListener("input",()=>renderDes());["df-cat","df-cen","df-state"].forEach(i=>$("#"+i).addEventListener("change",()=>renderDes()));
 function closeMenu(){ $("#menu").hidden=true; $("#menubtn").setAttribute("aria-expanded","false"); }
 $("#menubtn").addEventListener("click",e=>{ e.stopPropagation(); const open=$("#menu").hidden; $("#menu").hidden=!open; $("#menubtn").setAttribute("aria-expanded",String(open)); });
