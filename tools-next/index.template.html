@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
 <title>Atlas Bibliotheca Pro</title>
-<link rel="icon" type="image/png" href="../logo.png">
+<link rel="icon" type="image/png" href="../favicon.png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,6 +30,7 @@ button{cursor:pointer}
 h1,h2,h3{text-wrap:balance;margin:0}
 h1.brand{display:flex;align-items:center;gap:.5em}
 .gate h1.brand{justify-content:center}
+.gate .emblem{display:block;width:96px;height:auto;margin:0 auto 2px}
 h1.brand span.nm{color:inherit;font-style:normal}
 
 .menubar{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 2px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
@@ -78,7 +79,7 @@ h1.brand span.nm{color:inherit;font-style:normal}
 
 
 .newtag{font-family:var(--f-ui,system-ui,sans-serif);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-style:normal;color:var(--gilt);border:1px solid var(--gilt);border-radius:99px;padding:3px 9px;align-self:center;white-space:nowrap}
-h1.brand .logo{width:1.9em;height:1.9em;flex:none;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+h1.brand .logo{width:2.2em;height:2.2em;flex:none;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.25)}
 .mast{padding-bottom:14px;border-bottom:1px solid var(--rule)}
 .mast h1{font-family:var(--f-display);font-weight:500;font-size:2.1rem;line-height:1}
 .mast h1 span{color:var(--gilt);font-style:italic}
@@ -171,7 +172,8 @@ img[data-enc]:not([src]){visibility:hidden}
 
 </head><body>
 <div class="gate" id="gate"><form id="gateform" autocomplete="on">
-<h1 class="brand"><img class="logo" src="../logo.png" alt="" width="96" height="96"><span class="nm">Atlas <span>Bibliotheca</span></span><span class="newtag">Pro preview</span></h1>
+<img class="emblem" src="../emblem.png" alt="Atlas bearing the heavens" width="287" height="644">
+<h1 class="brand"><span class="nm">Atlas <span>Bibliotheca</span></span><span class="newtag">Pro preview</span></h1>
 <p>Rare books from the collection of Scott W. Atlas</p>
 <input type="text" name="username" value="Atlas Library" autocomplete="username" hidden>
 <label for="pw" class="sr" style="position:absolute;left:-9999px">Password</label>
