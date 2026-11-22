@@ -84,6 +84,8 @@ def main():
         d = json.load(open(os.path.join(a.books, f)))
         if d.get('status') not in (None, '', 'In collection', 'On loan'):
             continue
+        if d.get('hidden'):  # the owner has hidden this book from everyone else
+            continue
         b = {'id': f[:-5]}
         for k in fields:
             v = d.get(k)
