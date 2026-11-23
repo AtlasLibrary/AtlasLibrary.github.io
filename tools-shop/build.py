@@ -18,6 +18,8 @@ SIG = {"Signed by the author": "Signed", "Inscribed by the author": "Inscribed",
        "Inscribed by the illustrator": "Inscribed by illustrator", "Signed by the author and the illustrator": "Signed by author and illustrator",
        "Association copy": "Association copy"}
 
+PRIVATE_LABEL = re.compile(r'invoice|receipt|purchase|bill of sale|packing slip|shipping', re.I)  # dealer papers never go on the website
+
 def load_dir(d):
     out = {}
     for f in sorted(glob.glob(os.path.join(d or '', '*.json'))):
@@ -58,7 +60,7 @@ def public(b, photos, need, price=None):
     ph = []
     for p in b.get('photos') or []:
         pid = p.get('id')
-        if not pid: continue
+        if not pid or PRIVATE_LABEL.search(p.get('label') or ''): continue
         if pid in photos: ph.append({'src': photos[pid], 'label': p.get('label') or ''})
         else: need.add(pid)
     imp = ', '.join(x for x in [': '.join(x for x in [b.get('place'), b.get('publisher')] if x), str(b.get('date') or b.get('year') or '')] if x)

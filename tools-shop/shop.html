@@ -132,7 +132,7 @@ function detailView(b,price,onBack){
   show(0);
 }
 function roomView(r){
-  const app=$("#app"); app.replaceChildren();
+  const app=$("#app"); app.replaceChildren(); scrollTo(0,0);
   const exp=r.expires?new Date(r.expires+"T23:59:59"):null;
   if(exp&&exp<new Date()){ app.append(el("div",{class:"room"},el("h2",{text:"This selection has closed"}),el("p",{text:"Please write to us and we will gladly send a new one."+(DATA&&DATA.shop.email?" "+DATA.shop.email:"")}))); return; }
   app.append(el("div",{class:"room"},el("h2",{text:"A selection for "+(r.customer||"you")}),r.note?el("p",{class:"desc",style:"margin:0 0 8px",text:r.note}):null,
