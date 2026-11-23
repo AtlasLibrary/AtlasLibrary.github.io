@@ -1,0 +1,163 @@
+<title>Atlas Bibliotheca Books</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#F6F3EC;--surface:#FFFDF8;--ink:#1F1F1D;--muted:#5B6862;--rule:#DCD6C8;--accent:#1E3D33;--accent-ink:#FFFFFF;--gilt:#9A7A2E;--soft:#ECE6D8;--f-d:"EB Garamond",Garamond,Georgia,serif;--f-u:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141816;--surface:#1C211F;--ink:#ECE8DF;--muted:#A3ADA7;--rule:#333B37;--accent:#8CC2AE;--accent-ink:#0F1513;--gilt:#D2B26A;--soft:#252B28;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141816;--surface:#1C211F;--ink:#ECE8DF;--muted:#A3ADA7;--rule:#333B37;--accent:#8CC2AE;--accent-ink:#0F1513;--gilt:#D2B26A;--soft:#252B28;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-u)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+header.top{border-bottom:1px solid var(--rule);padding:28px 0 18px;margin-bottom:22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{min-width:0;flex:1}
+.brand h1{font:400 clamp(1.9rem,5vw,2.8rem)/1.05 var(--f-d);margin:0;color:var(--accent);text-wrap:balance}
+.brand h1 i{color:var(--gilt)}
+.brand p{margin:4px 0 0;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ribbon{display:inline-block;margin-top:10px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gilt);border:1px solid var(--gilt);border-radius:99px;padding:3px 10px;white-space:nowrap}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.bar input[type=search]{flex:1 1 260px;min-width:0;font:inherit;font-size:1rem;padding:11px 14px;border:1px solid var(--rule);border-radius:10px;background:var(--surface);color:var(--ink)}
+.bar select{font:inherit;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--surface);color:var(--ink);max-width:100%}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:thin}
+.chips button{flex:none;font:inherit;font-size:.85rem;border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:99px;padding:6px 13px;cursor:pointer}
+.chips button.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.count{font-size:.85rem;color:var(--muted);margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+@media (max-width:560px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card .tx{padding:9px 10px 11px}.ti{font-size:1.02rem}.au{font-size:.66rem}.pr b{font-size:1rem}}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:12px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;text-align:left;font:inherit;color:inherit;padding:0;min-width:0}
+.card:hover{border-color:var(--gilt)}
+.card .ph{aspect-ratio:4/5;background:var(--soft);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card .ph img{width:100%;height:100%;object-fit:cover}
+.card .ph .ini{font:400 3rem var(--f-d);color:var(--muted)}
+.card .tx{padding:12px 14px 14px;display:grid;gap:3px;min-width:0}
+.au{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ti{font:italic 400 1.18rem/1.25 var(--f-d);margin:0;overflow-wrap:anywhere}
+.im{font-size:.82rem;color:var(--muted)}
+.pr{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:6px}
+.pr b{font:500 1.15rem var(--f-d)}
+.tag{font-size:.7rem;letter-spacing:.05em;text-transform:uppercase;color:var(--gilt)}
+.empty{padding:30px;border:1px dashed var(--rule);border-radius:12px;color:var(--muted);text-align:center}
+.back{font:inherit;font-size:.9rem;background:none;border:0;color:var(--accent);cursor:pointer;padding:6px 0;margin-bottom:10px}
+.detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
+@media (max-width:760px){.detail{grid-template-columns:minmax(0,1fr)}}
+.big{background:var(--soft);border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:220px}
+.big img{width:100%;max-height:70vh;object-fit:contain}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.thumbs button{width:64px;height:64px;border:1px solid var(--rule);border-radius:8px;overflow:hidden;padding:0;cursor:pointer;background:var(--soft)}
+.thumbs button.on{border-color:var(--gilt);border-width:2px}
+.thumbs img{width:100%;height:100%;object-fit:cover}
+.detail h2{font:italic 400 clamp(1.5rem,3.5vw,2.1rem)/1.2 var(--f-d);margin:4px 0 6px;text-wrap:balance}
+.desc{font:400 1.08rem/1.6 var(--f-d);max-width:65ch;white-space:pre-line}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:.88rem;margin:14px 0}
+.facts dt{color:var(--muted)}.facts dd{margin:0}
+.price{font:500 1.6rem var(--f-d);margin:14px 0 4px}
+.enq{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:14px 16px;margin-top:14px}
+.enq h3{margin:0 0 6px;font:500 1.1rem var(--f-d)}
+.enq .addr{font-weight:600;user-select:all;overflow-wrap:anywhere}
+.btn{font:inherit;font-size:.9rem;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:9px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.q{background:transparent;color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.room{background:var(--surface);border:1px solid var(--gilt);border-radius:12px;padding:16px 18px;margin-bottom:18px}
+.room h2{font:400 1.6rem var(--f-d);margin:0 0 6px;color:var(--accent)}
+footer{margin-top:40px;border-top:1px solid var(--rule);padding-top:16px;font-size:.84rem;color:var(--muted);display:grid;gap:6px}
+footer p{margin:0;max-width:75ch}
+</style>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><h1 id="name">Atlas <i>Bibliotheca</i></h1><p id="tagline">Rare Books &amp; Fine Editions</p><span class="ribbon" id="ribbon" hidden>Preview with sample stock</span></div>
+  </header>
+  <main id="app"><p class="count">Loading the catalogue…</p></main>
+  <footer id="foot"></footer>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+function el(t,a,...k){const e=document.createElement(t);if(a)for(const[x,v]of Object.entries(a)){if(v==null||v===false)continue;if(x==="text")e.textContent=v;else if(x.startsWith("on"))e.addEventListener(x.slice(2),v);else e.setAttribute(x,v===true?"":v);}for(const c of k)if(c!=null)e.append(c);return e;}
+const usd=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(n||0);
+const fold=x=>String(x??"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+const loose=x=>fold(x).replace(/[^a-z0-9]+/g," ").replace(/[yj]/g,"i").replace(/ie/g,"e").replace(/w/g,"v").replace(/ph/g,"f").replace(/ck/g,"k").replace(/([a-z])\1+/g,"$1");
+const fmtDate=s=>{const d=new Date(s+"T12:00:00");return isNaN(d)?s:d.toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});};
+let DATA=null, ROOM=null, CAT="", Q="", SORT="author";
+try{ SORT=localStorage.getItem("shop-sort")||"author"; }catch{}
+function shortAuthor(a){ return String(a||"").split(";")[0]; }
+function card(b,onOpen){
+  const p=b.photos[0];
+  return el("button",{class:"card",type:"button",onclick:onOpen},
+    el("div",{class:"ph"},p?el("img",{src:p.src,alt:"",loading:"lazy"}):el("span",{class:"ini",text:(b.author||b.title||"?").charAt(0)})),
+    el("div",{class:"tx"},el("div",{class:"au",text:shortAuthor(b.author)}),el("p",{class:"ti",text:b.short||b.title}),
+      el("div",{class:"im",text:[b.year,b.edition].filter(Boolean).join(" · ")}),
+      el("div",{class:"pr"},el("b",{text:b.price?usd(b.price):"Price on request"}),b.reserved?el("span",{class:"tag",text:"Reserved"}):b.signed?el("span",{class:"tag",text:b.signed}):null)));
+}
+function listView(){
+  const app=$("#app"); app.replaceChildren();
+  const books=DATA.books, cats=[...new Set(books.map(b=>b.category).filter(Boolean))].sort();
+  const q=el("input",{type:"search",placeholder:"Search by any word: author, title, place, binding…","aria-label":"Search the catalogue",value:Q});
+  const s=el("select",{"aria-label":"Order"},...[["author","Author, A to Z"],["new","Newly listed"],["year","Earliest first"],["low","Price, lowest first"],["high","Price, highest first"]].map(([v,l])=>el("option",{value:v,text:l,selected:v===SORT})));
+  const chips=el("div",{class:"chips",role:"radiogroup","aria-label":"Subject"},...["",...cats].map(c=>el("button",{type:"button",class:c===CAT?"on":"",role:"radio","aria-checked":String(c===CAT),text:c||"All subjects",onclick:()=>{CAT=c;draw();}})));
+  const count=el("p",{class:"count"}), grid=el("div",{class:"grid"});
+  app.append(el("div",{class:"bar"},q,s),chips,count,grid);
+  q.addEventListener("input",()=>{Q=q.value;draw();});
+  s.addEventListener("change",()=>{SORT=s.value;try{localStorage.setItem("shop-sort",SORT);}catch{}draw();});
+  function draw(){
+    chips.querySelectorAll("button").forEach((b,i)=>{const c=["",...cats][i];b.className=c===CAT?"on":"";b.setAttribute("aria-checked",String(c===CAT));});
+    const words=loose(Q).split(" ").filter(w=>w.length>1||/\d/.test(w));
+    let r=books.filter(b=>(!CAT||b.category===CAT)&&(!words.length||(h=>words.every(w=>h.includes(w)))(loose([b.no,b.author,b.title,b.imprint,b.edition,b.desc,b.language,b.category,b.signed].join(" ")))));
+    const k={author:(a,b)=>fold(a.author).localeCompare(fold(b.author))||fold(a.title).localeCompare(fold(b.title)),new:(a,b)=>String(b.added).localeCompare(String(a.added)),year:(a,b)=>(a.year||9999)-(b.year||9999),low:(a,b)=>a.price-b.price,high:(a,b)=>b.price-a.price}[SORT];
+    r.sort(k); grid.replaceChildren(...r.map(b=>card(b,()=>{location.hash="book-"+b.no;})));
+    count.textContent=r.length===books.length?books.length+" books in the catalogue":r.length+" of "+books.length+" books";
+    if(!r.length) grid.replaceChildren(el("div",{class:"empty",text:"No book matches. Try another word, or write to us: we may know where to find it."}));
+  }
+  draw();
+}
+function enquiry(b,price){
+  const shop=DATA.shop||{}; const msg="Enquiry about "+(b.no?b.no+": ":"")+[shortAuthor(b.author),b.title].filter(Boolean).join(", ")+(price?", "+usd(price):"")+".";
+  const box=el("div",{class:"enq"},el("h3",{text:b.reserved?"This book is reserved":"Enquire about this book"}),
+    el("p",{style:"margin:0 0 6px",text:b.reserved?"Another customer has it on hold. Write to be told if it becomes available.":"Write with the stock number and we will reply the same day."}));
+  if(shop.email){ box.append(el("div",{class:"addr",text:shop.email}));
+    const cp=el("button",{class:"btn",type:"button",text:"Copy a message about this book",onclick:async()=>{ try{ await navigator.clipboard.writeText(msg); cp.textContent="Copied"; }catch{ cp.textContent=msg; } }});
+    box.append(el("div",{class:"row"},cp,el("a",{class:"btn q",href:"mailto:"+shop.email+"?subject="+encodeURIComponent(msg),text:"Open in your email"})),el("p",{style:"margin:8px 0 0;font-size:.82rem;color:var(--muted)",text:msg})); }
+  if(shop.phone) box.append(el("p",{style:"margin:8px 0 0"},"Telephone ",el("span",{class:"addr",text:shop.phone})));
+  return box;
+}
+function detailView(b,price,onBack){
+  const app=$("#app"); app.replaceChildren(); scrollTo(0,0);
+  let cur=0; const big=el("div",{class:"big"}), th=el("div",{class:"thumbs"});
+  const show=i=>{ cur=i; const p=b.photos[i]; big.replaceChildren(p?el("img",{src:p.src,alt:p.label||""}):el("span",{class:"ini",style:"font:400 4rem var(--f-d);color:var(--muted)",text:(b.author||"?").charAt(0)})); th.querySelectorAll("button").forEach((x,j)=>x.className=j===i?"on":""); };
+  b.photos.forEach((p,i)=>th.append(el("button",{type:"button","aria-label":p.label||"Photograph "+(i+1),onclick:()=>show(i)},el("img",{src:p.src,alt:""}))));
+  const facts=el("dl",{class:"facts"}); for(const [k,v] of [["Stock number",b.no],["Published",b.imprint],["Edition",b.edition],["Language",b.language],["Condition",b.condition],["Signed",b.signed]]) if(v){ facts.append(el("dt",{text:k}),el("dd",{text:v})); }
+  app.append(el("button",{class:"back",type:"button",text:"← "+(ROOM?"Back to the selection":"Back to the catalogue"),onclick:onBack}),
+    el("div",{class:"detail"},el("div",null,big,b.photos.length>1?th:null),
+      el("div",{style:"min-width:0"},el("div",{class:"au",text:b.author+(b.dates?" ("+b.dates+")":"")}),el("h2",{text:b.title}),el("div",{class:"im",text:b.imprint}),
+        el("div",{class:"price",text:price?usd(price):"Price on request"}),b.reserved?el("div",{class:"tag",text:"Reserved"}):null,
+        facts,el("div",{class:"desc",text:b.desc}),enquiry(b,price))));
+  show(0);
+}
+function roomView(r){
+  const app=$("#app"); app.replaceChildren();
+  const exp=r.expires?new Date(r.expires+"T23:59:59"):null;
+  if(exp&&exp<new Date()){ app.append(el("div",{class:"room"},el("h2",{text:"This selection has closed"}),el("p",{text:"Please write to us and we will gladly send a new one."+(DATA&&DATA.shop.email?" "+DATA.shop.email:"")}))); return; }
+  app.append(el("div",{class:"room"},el("h2",{text:"A selection for "+(r.customer||"you")}),r.note?el("p",{class:"desc",style:"margin:0 0 8px",text:r.note}):null,
+    el("p",{style:"margin:0;font-size:.85rem;color:var(--muted)",text:r.books.length+(r.books.length===1?" book, offered":" books, offered")+" at the prices shown"+(r.expires?" until "+fmtDate(r.expires):"")+". This page is private to you."})));
+  const grid=el("div",{class:"grid"}); app.append(grid);
+  for(const b of r.books) grid.append(card(b,()=>detailView(b,b.price,()=>roomView(r))));
+  if(!r.books.length) grid.append(el("div",{class:"empty",text:"The books in this selection have all found homes. Please write to us for others."}));
+}
+async function route(){
+  const h=location.hash.slice(1);
+  if(/^room-[a-z0-9]{12,40}$/.test(h)){ ROOM=h.slice(5);
+    try{ const r=await (await fetch("rooms/"+ROOM+".json",{cache:"no-store"})).json(); roomView(r); }
+    catch{ $("#app").replaceChildren(el("div",{class:"room"},el("h2",{text:"This selection isn't available"}),el("p",{text:"It may have closed, or it may still be on its way: new selections appear within the hour."}))); }
+    return; }
+  ROOM=null;
+  if(h.startsWith("book-")&&DATA){ const b=DATA.books.find(x=>x.no===h.slice(5)); if(b){ detailView(b,b.price,()=>{ history.replaceState(null,"",location.pathname+location.search); listView(); }); return; } }
+  if(DATA) listView();
+}
+(async()=>{
+  try{ DATA=await (await fetch("data.json",{cache:"no-store"})).json(); }catch{ $("#app").replaceChildren(el("div",{class:"empty",text:"The catalogue couldn't be loaded. Please try again shortly."})); }
+  if(DATA){ const s=DATA.shop||{};
+    const nm=String(s.name||"").split(" "); $("#name").replaceChildren(nm[0]+" ",el("i",{text:nm.slice(1).join(" ")})); $("#tagline").textContent=s.tagline||"";
+    $("#ribbon").hidden=!s.sample; document.title=s.name||document.title;
+    $("#foot").replaceChildren(...[s.about,[s.address,s.phone,s.email].filter(Boolean).join(" · "),s.terms,"Catalogue updated "+new Date(DATA.built.replace("Z",":00Z")).toLocaleString("en-US",{month:"long",day:"numeric",hour:"numeric",minute:"2-digit"})+"."].filter(Boolean).map(t=>el("p",{text:t}))); }
+  route();
+})();
+addEventListener("hashchange",route);
+</script>
