@@ -200,7 +200,7 @@ img[data-enc]:not([src]){visibility:hidden}
   <main id="v-list">
     <div class="summary" id="summary"></div>
     <div class="tools">
-      <input id="q" class="ctl" type="search" placeholder="Search author, title, publisher, binding…" aria-label="Search the catalogue">
+      <input id="q" class="ctl" type="search" placeholder="Search by any word: Dostoevsky, Paris, inscribed…" aria-label="Search the catalogue">
       <label for="sort">Sort by
         <select id="sort" class="ctl" autocomplete="off">
           <option value="author">Author, A to Z</option>
@@ -319,7 +319,9 @@ function renderList(){
   const n=BOOKS.length;
   $("#summary").replaceChildren(el("div",null,el("span",{class:"big",text:String(n)}),el("span",{class:"lbl",text:"books"})),el("div",null,el("span",{class:"big",text:String(BOOKS.filter(isFirst).length)}),el("span",{class:"lbl",text:"first editions"})));
   const fold=x=>String(x??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’‘`´]/g,"'").toLowerCase(), q=fold($("#q").value.trim()), by=$("#sort").value, g=$("#group").value, list=$("#list"); list.replaceChildren();
-  let rows=(q?BOOKS.filter(b=>Object.values(b).some(v=>typeof v==="string"&&fold(v).includes(q))):[...BOOKS]).filter(passCF);
+  const loose=x=>fold(x).replace(/[^a-z0-9]+/g," ").replace(/[yj]/g,"i").replace(/ie/g,"e").replace(/w/g,"v").replace(/ph/g,"f").replace(/ck/g,"k").replace(/([a-z])\1+/g,"$1");
+  const words=q?loose(q).split(" ").filter(w=>w.length>1||/\d/.test(w)):[], hay=b=>loose(Object.values(b).map(v=>typeof v==="string"?v:Array.isArray(v)?v.map(p=>p&&p.label||"").join(" "):"").join(" "));
+  let rows=(words.length?BOOKS.filter(b=>{const h=hay(b);return words.every(w=>h.includes(w));}):[...BOOKS]).filter(passCF);
   if(!rows.length){list.append(el("p",{class:"empty",text:"No books match that search."}));return;}
   rows.sort((a,b)=>cmp(a,b,by));
   if(!g){rows.forEach(b=>list.append(row(b)));return;}
