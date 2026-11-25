@@ -91,7 +91,7 @@ function listView(){
   const app=$("#app"); app.replaceChildren();
   const books=DATA.books, cats=[...new Set(books.map(b=>b.category).filter(Boolean))].sort();
   const q=el("input",{type:"search",placeholder:"Search by any word: author, title, place, binding…","aria-label":"Search the catalogue",value:Q});
-  const s=el("select",{"aria-label":"Order"},...[["author","Author, A to Z"],["new","Newly listed"],["year","Earliest first"],["low","Price, lowest first"],["high","Price, highest first"]].map(([v,l])=>el("option",{value:v,text:l,selected:v===SORT})));
+  const s=el("select",{"aria-label":"Order"},...[["relevance","Best match"],["author","Author, A to Z"],["author-desc","Author, Z to A"],["title","Title, A to Z"],["title-desc","Title, Z to A"],["new","Newly listed"],["year","Publication year, earliest first"],["year-desc","Publication year, latest first"],["low","Price, lowest first"],["high","Price, highest first"]].map(([v,l])=>el("option",{value:v,text:l,selected:v===SORT})));
   const chips=el("div",{class:"chips",role:"radiogroup","aria-label":"Subject"},...["",...cats].map(c=>el("button",{type:"button",class:c===CAT?"on":"",role:"radio","aria-checked":String(c===CAT),text:c||"All subjects",onclick:()=>{CAT=c;draw();}})));
   const count=el("p",{class:"count"}), grid=el("div",{class:"grid"});
   app.append(el("div",{class:"bar"},q,s),chips,count,grid);
@@ -101,7 +101,13 @@ function listView(){
     chips.querySelectorAll("button").forEach((b,i)=>{const c=["",...cats][i];b.className=c===CAT?"on":"";b.setAttribute("aria-checked",String(c===CAT));});
     const words=loose(Q).split(" ").filter(w=>w.length>1||/\d/.test(w));
     let r=books.filter(b=>(!CAT||b.category===CAT)&&(!words.length||(h=>words.every(w=>h.includes(w)))(loose([b.no,b.author,b.title,b.imprint,b.edition,b.desc,b.language,b.category,b.signed].join(" ")))));
-    const k={author:(a,b)=>fold(a.author).localeCompare(fold(b.author))||fold(a.title).localeCompare(fold(b.title)),new:(a,b)=>String(b.added).localeCompare(String(a.added)),year:(a,b)=>(a.year||9999)-(b.year||9999),low:(a,b)=>a.price-b.price,high:(a,b)=>b.price-a.price}[SORT];
+    const au=(a,b)=>fold(a.author).localeCompare(fold(b.author)), ti=(a,b)=>fold(a.title).localeCompare(fold(b.title));
+    // Best match: with search words, books whose title or author carries them come first; without words, author order.
+    const score=b=>words.reduce((s,w)=>s+(loose(b.title).includes(w)?4:0)+(loose(b.author).includes(w)?3:0)+1,0);
+    const k={relevance:words.length?(a,b)=>score(b)-score(a)||au(a,b)||ti(a,b):(a,b)=>au(a,b)||ti(a,b),
+      author:(a,b)=>au(a,b)||ti(a,b),"author-desc":(a,b)=>au(b,a)||ti(a,b),title:(a,b)=>ti(a,b)||au(a,b),"title-desc":(a,b)=>ti(b,a)||au(a,b),
+      new:(a,b)=>String(b.added).localeCompare(String(a.added)),year:(a,b)=>(a.year||9999)-(b.year||9999),"year-desc":(a,b)=>(b.year||0)-(a.year||0),
+      low:(a,b)=>a.price-b.price,high:(a,b)=>b.price-a.price}[SORT]||((a,b)=>au(a,b)||ti(a,b));
     r.sort(k); grid.replaceChildren(...r.map(b=>card(b,()=>{location.hash="book-"+b.no;})));
     count.textContent=r.length===books.length?books.length+" books in the catalogue":r.length+" of "+books.length+" books";
     if(!r.length) grid.replaceChildren(el("div",{class:"empty",text:"No book matches. Try another word, or write to us: we may know where to find it."}));
